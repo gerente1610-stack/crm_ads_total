@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NetCRM - Full Funnel & ROI</title>
+    <title>NetCRM Totalplay | Juan Melendez</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -12,6 +12,8 @@
         [x-cloak] { display: none !important; }
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .line-clamp-3 { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-900 overflow-hidden font-sans" x-data="crmApp()" x-init="init()">
@@ -19,23 +21,27 @@
     <div class="flex h-screen w-full">
         <aside :class="sidebarOpen ? 'w-64' : 'w-20'" class="bg-[#0F172A] text-white transition-all duration-300 flex flex-col z-20">
             <div class="p-6 flex items-center gap-3 border-b border-slate-800">
-                <div class="w-8 h-8 bg-[#1877F2] rounded-lg flex items-center justify-center font-bold shrink-0">N</div>
-                <span x-show="sidebarOpen" class="font-bold text-xl uppercase italic tracking-tighter">NetCRM Pro</span>
+                <div class="w-8 h-8 bg-pink-600 rounded-lg flex items-center justify-center font-bold shrink-0 shadow-lg shadow-pink-500/20">T</div>
+                <span x-show="sidebarOpen" class="font-bold text-xl tracking-tighter italic">TOTALPLAY <span class="text-xs block text-pink-500 font-normal not-italic">Asesor Pro</span></span>
             </div>
             <nav class="flex-1 p-4 space-y-2">
-                <button @click="activeTab = 'dashboard'" :class="activeTab === 'dashboard' ? 'bg-[#1877F2]' : 'hover:bg-slate-800'" class="w-full flex items-center gap-4 p-3 rounded-xl transition-all">
+                <button @click="activeTab = 'dashboard'" :class="activeTab === 'dashboard' ? 'bg-pink-600' : 'hover:bg-slate-800'" class="w-full flex items-center gap-4 p-3 rounded-xl transition-all">
                     <i data-lucide="bar-chart-3"></i> <span x-show="sidebarOpen" class="font-bold text-sm">Dashboard</span>
                 </button>
-                <button @click="activeTab = 'leads'" :class="activeTab === 'leads' ? 'bg-[#1877F2]' : 'hover:bg-slate-800'" class="w-full flex items-center gap-4 p-3 rounded-xl transition-all">
+                <button @click="activeTab = 'leads'" :class="activeTab === 'leads' ? 'bg-pink-600' : 'hover:bg-slate-800'" class="w-full flex items-center gap-4 p-3 rounded-xl transition-all">
                     <i data-lucide="users"></i> <span x-show="sidebarOpen" class="font-bold text-sm">Leads</span>
                 </button>
-                <button @click="activeTab = 'kanban'" :class="activeTab === 'kanban' ? 'bg-[#1877F2]' : 'hover:bg-slate-800'" class="w-full flex items-center gap-4 p-3 rounded-xl transition-all">
+                <button @click="activeTab = 'kanban'" :class="activeTab === 'kanban' ? 'bg-pink-600' : 'hover:bg-slate-800'" class="w-full flex items-center gap-4 p-3 rounded-xl transition-all">
                     <i data-lucide="columns"></i> <span x-show="sidebarOpen" class="font-bold text-sm">Pipeline</span>
                 </button>
-                <button @click="activeTab = 'expenses'" :class="activeTab === 'expenses' ? 'bg-[#1877F2]' : 'hover:bg-slate-800'" class="w-full flex items-center gap-4 p-3 rounded-xl transition-all">
+                <button @click="activeTab = 'expenses'" :class="activeTab === 'expenses' ? 'bg-pink-600' : 'hover:bg-slate-800'" class="w-full flex items-center gap-4 p-3 rounded-xl transition-all">
                     <i data-lucide="cog"></i> <span x-show="sidebarOpen" class="font-bold text-sm">Ads & Gastos</span>
                 </button>
             </nav>
+            <div class="p-4 border-t border-slate-800" x-show="sidebarOpen">
+                <p class="text-[10px] text-slate-500 font-black uppercase">Asesor</p>
+                <p class="text-xs font-bold text-slate-200">Juan Melendez</p>
+            </div>
         </aside>
 
         <main class="flex-1 flex flex-col min-w-0 overflow-hidden">
@@ -46,7 +52,7 @@
                         <p class="text-[9px] font-black text-slate-400 uppercase">Utilidad Neta</p>
                         <p class="text-sm font-black text-green-600" x-text="'$' + (totalCommission() - totalExpenses())"></p>
                     </div>
-                    <button @click="openModal()" class="bg-[#1877F2] text-white px-5 py-2 rounded-lg text-xs font-black shadow-lg hover:bg-blue-600 transition-colors">
+                    <button @click="openModal()" class="bg-pink-600 text-white px-5 py-2 rounded-lg text-xs font-black shadow-lg hover:bg-pink-700 transition-colors">
                         + NUEVO LEAD
                     </button>
                 </div>
@@ -58,14 +64,14 @@
                     <div class="space-y-6">
                         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                             <div class="bg-white p-5 rounded-2xl border shadow-sm border-l-4 border-l-red-500">
-                                <p class="text-[10px] font-black text-slate-400 uppercase">Inversión</p>
+                                <p class="text-[10px] font-black text-slate-400 uppercase">Inversión Ads</p>
                                 <p class="text-xl font-black text-slate-800" x-text="'$' + totalExpenses()"></p>
                             </div>
                             <div class="bg-white p-5 rounded-2xl border shadow-sm border-l-4 border-l-green-500">
                                 <p class="text-[10px] font-black text-slate-400 uppercase">Comisiones</p>
                                 <p class="text-xl font-black text-slate-800" x-text="'$' + totalCommission()"></p>
                             </div>
-                            <div class="bg-white p-5 rounded-2xl border shadow-sm border-l-4 border-l-blue-500">
+                            <div class="bg-white p-5 rounded-2xl border shadow-sm border-l-4 border-l-pink-500">
                                 <p class="text-[10px] font-black text-slate-400 uppercase">CPA Global</p>
                                 <p class="text-xl font-black text-slate-800" x-text="'$' + calculateCPA()"></p>
                             </div>
@@ -81,24 +87,22 @@
                                     <div class="flex justify-between items-center mb-6">
                                         <div>
                                             <h4 class="font-black text-slate-800 uppercase text-base" x-text="ad"></h4>
-                                            <p class="text-[10px] font-bold text-blue-500" x-text="getAdLeadCount(ad) + ' LEADS TOTALES'"></p>
+                                            <p class="text-[10px] font-bold text-pink-500" x-text="getAdLeadCount(ad) + ' LEADS TOTALES'"></p>
                                         </div>
                                         <div class="text-right">
-                                            <p class="text-[10px] font-black text-slate-400 uppercase">CPA Específico</p>
-                                            <p class="text-lg font-black text-blue-600" x-text="'$' + getAdCPA(ad)"></p>
+                                            <p class="text-[10px] font-black text-slate-400 uppercase">CPA Campaña</p>
+                                            <p class="text-lg font-black text-pink-600" x-text="'$' + getAdCPA(ad)"></p>
                                         </div>
                                     </div>
-
                                     <div class="space-y-2">
-                                        <p class="text-[10px] font-black text-slate-400 uppercase mb-3 tracking-widest">Embudo de Conversión</p>
                                         <template x-for="stage in stages" :key="stage">
-                                            <div class="group relative">
-                                                <div class="flex justify-between items-center text-[11px] mb-1">
+                                            <div>
+                                                <div class="flex justify-between items-center text-[10px] mb-1">
                                                     <span class="font-bold text-slate-600 uppercase" x-text="stage"></span>
-                                                    <span class="font-black text-slate-900 bg-slate-100 px-2 py-0.5 rounded" x-text="getAdStageCount(ad, stage)"></span>
+                                                    <span class="font-black text-slate-900" x-text="getAdStageCount(ad, stage)"></span>
                                                 </div>
-                                                <div class="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
-                                                    <div class="bg-blue-500 h-full transition-all duration-500" 
+                                                <div class="w-full bg-slate-100 h-1.5 rounded-full">
+                                                    <div class="bg-pink-500 h-full rounded-full transition-all duration-500" 
                                                          :style="'width: ' + (getAdLeadCount(ad) > 0 ? (getAdStageCount(ad, stage)/getAdLeadCount(ad)*100) : 0) + '%'"></div>
                                                 </div>
                                             </div>
@@ -115,36 +119,46 @@
                         <div class="p-4 bg-slate-50 border-b flex justify-between items-center">
                             <h3 class="font-black text-xs uppercase italic">Base de Datos de Prospectos</h3>
                             <button @click="exportToExcel()" class="bg-emerald-600 text-white px-3 py-1.5 rounded-lg text-[10px] font-black flex items-center gap-2">
-                                <i data-lucide="download" class="w-4 h-4"></i> EXPORTAR
+                                <i data-lucide="download" class="w-4 h-4"></i> EXCEL
                             </button>
                         </div>
                         <div class="overflow-x-auto">
                             <table class="w-full text-left">
                                 <thead class="bg-slate-50 text-[10px] font-black text-slate-400 uppercase">
                                     <tr>
-                                        <th class="px-6 py-4">Lead (Clic para editar)</th>
-                                        <th class="px-6 py-4">Anuncio</th>
-                                        <th class="px-6 py-4">Etapa Actual</th>
-                                        <th class="px-6 py-4">Comisión</th>
-                                        <th class="px-6 py-4">Fecha Venta Instalada</th>
-                                        <th class="px-6 py-4">Fecha Registro</th>
+                                        <th class="px-6 py-4 border-b w-48">Lead / Contacto</th>
+                                        <th class="px-6 py-4 border-b w-64">Notas / Domicilio</th>
+                                        <th class="px-6 py-4 border-b">Correo</th>
+                                        <th class="px-6 py-4 border-b">Origen</th>
+                                        <th class="px-6 py-4 border-b text-center">WhatsApp</th>
+                                        <th class="px-6 py-4 border-b">Instalación</th>
+                                        <th class="px-6 py-4 border-b">Comisión</th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-slate-100">
                                     <template x-for="lead in leads" :key="lead.id">
-                                        <tr @click="openModal(lead)" class="hover:bg-blue-50 cursor-pointer transition-colors group">
+                                        <tr @click="openModal(lead)" class="hover:bg-pink-50/30 cursor-pointer transition-colors group">
                                             <td class="px-6 py-4">
-                                                <div class="font-black text-blue-600 group-hover:underline" x-text="lead.phone"></div>
+                                                <div class="font-black text-slate-800 group-hover:text-pink-600" x-text="lead.phone"></div>
                                                 <div class="text-[10px] text-slate-400 uppercase font-bold" x-text="lead.name || 'Sin Nombre'"></div>
                                             </td>
-                                            <td class="px-6 py-4 font-bold uppercase text-[10px] text-slate-500" x-text="lead.adName || 'Orgánico'"></td>
                                             <td class="px-6 py-4">
-                                                <span :class="lead.stage === 'Venta Instalada' ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-600'" 
-                                                      class="text-[9px] font-black uppercase px-2 py-1 rounded-full" x-text="lead.stage"></span>
+                                                <div class="text-[11px] text-slate-600 italic font-medium line-clamp-2" x-text="lead.notes || '- No hay notas -'"></div>
+                                            </td>
+                                            <td class="px-6 py-4 text-[10px] font-medium text-slate-500" x-text="lead.email || '-'"></td>
+                                            <td class="px-6 py-4">
+                                                <div class="font-bold uppercase text-[9px] text-slate-500" x-text="lead.source"></div>
+                                                <div class="text-[8px] text-slate-400 font-black" x-text="lead.adName"></div>
+                                            </td>
+                                            <td class="px-6 py-4 text-center" @click.stop>
+                                                <a :href="getWhatsAppLink(lead)" target="_blank" class="inline-flex items-center justify-center w-8 h-8 bg-green-500 text-white rounded-full shadow-md hover:bg-green-600">
+                                                    <i data-lucide="message-circle" class="w-4 h-4"></i>
+                                                </a>
+                                            </td>
+                                            <td class="px-6 py-4">
+                                                <div :class="lead.installDate ? 'text-green-600 font-black' : 'text-slate-300 font-bold'" class="text-[10px]" x-text="lead.installDate || 'Pendiente'"></div>
                                             </td>
                                             <td class="px-6 py-4 font-black text-slate-700" x-text="lead.commission ? '$'+lead.commission : '-'"></td>
-                                            <td class="px-6 py-4 text-[10px] text-slate-700 font-black" x-text="lead.installDate ? lead.installDate : '-'"></td>
-                                            <td class="px-6 py-4 text-[10px] text-slate-400 font-bold" x-text="new Date(lead.createdAt).toLocaleDateString()"></td>
                                         </tr>
                                     </template>
                                 </tbody>
@@ -159,19 +173,30 @@
                             <div class="flex-shrink-0 w-72 bg-slate-200/50 rounded-xl flex flex-col p-3 border border-slate-200">
                                 <div class="mb-4 flex justify-between items-center px-2">
                                     <span class="text-[10px] font-black text-slate-500 uppercase tracking-tighter" x-text="stage"></span>
-                                    <span class="bg-white px-2 py-0.5 rounded text-[10px] font-black text-blue-600 shadow-sm" x-text="leads.filter(l => l.stage === stage).length"></span>
+                                    <span class="bg-white px-2 py-0.5 rounded text-[10px] font-black text-pink-600 shadow-sm" x-text="leads.filter(l => l.stage === stage).length"></span>
                                 </div>
-                                <div class="space-y-3 overflow-y-auto">
+                                <div class="space-y-3 overflow-y-auto flex-1">
                                     <template x-for="lead in leads.filter(l => l.stage === stage)" :key="lead.id">
-                                        <div @click="openModal(lead)" class="bg-white p-4 rounded-xl shadow-sm border-b-2 border-slate-200 cursor-pointer hover:border-blue-500 transition-all group">
+                                        <div @click="openModal(lead)" class="bg-white p-4 rounded-xl shadow-sm border-b-2 border-slate-200 cursor-pointer hover:border-pink-500 transition-all group relative">
                                             <div class="flex justify-between mb-2">
-                                                <span class="text-[8px] font-black bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded uppercase" x-text="lead.source"></span>
-                                                <template x-if="lead.stage === 'Venta Instalada'">
+                                                <span class="text-[8px] font-black bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded uppercase" x-text="lead.source"></span>
+                                                <template x-if="lead.commission > 0">
                                                     <span class="text-[10px] font-black text-green-600" x-text="'$'+lead.commission"></span>
                                                 </template>
                                             </div>
-                                            <h5 class="font-black text-xs text-slate-800" x-text="lead.phone"></h5>
-                                            <p class="text-[9px] text-slate-400 mt-1 uppercase font-bold truncate" x-text="lead.adName || 'Orgánico'"></p>
+                                            <h5 class="font-black text-sm text-slate-800" x-text="lead.phone"></h5>
+                                            <p class="text-[9px] text-slate-400 mt-1 uppercase font-bold truncate" x-text="lead.name || 'Sin Nombre'"></p>
+                                            
+                                            <div class="mt-3 bg-slate-50 p-2 rounded-lg border border-slate-100">
+                                                <p class="text-[10px] text-slate-500 italic font-medium line-clamp-3 leading-tight" x-text="lead.notes || 'Sin notas...'"></p>
+                                            </div>
+
+                                            <div class="mt-4 pt-3 border-t border-slate-50 flex justify-end" @click.stop>
+                                                <a :href="getWhatsAppLink(lead)" target="_blank" class="flex items-center gap-1.5 bg-green-500 text-white px-3 py-1.5 rounded-lg text-[9px] font-black hover:bg-green-600 transition-all shadow-sm">
+                                                    <i data-lucide="message-circle" class="w-3 h-3"></i>
+                                                    MENSAJE
+                                                </a>
+                                            </div>
                                         </div>
                                     </template>
                                 </div>
@@ -184,23 +209,16 @@
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                         <div class="lg:col-span-1 space-y-4">
                             <div class="bg-white p-6 rounded-2xl border shadow-sm">
-                                <h3 class="font-black text-sm uppercase mb-4 text-blue-600 italic border-b pb-2">1. Anuncios Activos</h3>
+                                <h3 class="font-black text-sm uppercase mb-4 text-pink-600 italic border-b pb-2">Campañas Activas</h3>
                                 <div class="flex gap-2 mb-4">
-                                    <input x-model="newAdName" @keyup.enter="addAdToList()" placeholder="Nombre de campaña..." class="flex-1 border-2 border-slate-100 rounded-lg p-2 text-sm outline-none focus:border-blue-500">
-                                    <button @click="addAdToList()" class="bg-blue-600 text-white p-2 rounded-lg hover:bg-blue-700 transition-colors"><i data-lucide="plus"></i></button>
+                                    <input x-model="newAdName" @keyup.enter="addAdToList()" placeholder="Nombre de campaña..." class="flex-1 border-2 border-slate-100 rounded-lg p-2 text-sm outline-none focus:border-pink-500">
+                                    <button @click="addAdToList()" class="bg-pink-600 text-white p-2 rounded-lg"><i data-lucide="plus"></i></button>
                                 </div>
                                 <div class="space-y-2">
                                     <template x-for="(ad, index) in activeAds" :key="index">
-                                        <div class="flex justify-between items-center bg-slate-50 p-3 rounded-lg border border-slate-100 hover:border-blue-200 transition-all">
+                                        <div class="flex justify-between items-center bg-slate-50 p-3 rounded-lg border border-slate-100">
                                             <span class="font-black text-[11px] uppercase text-slate-700" x-text="ad"></span>
-                                            <div class="flex items-center gap-1">
-                                                <button @click="editAdName(index)" class="p-1.5 text-blue-500 hover:bg-blue-100 rounded-md transition-colors">
-                                                    <i data-lucide="edit-3" class="w-4 h-4"></i>
-                                                </button>
-                                                <button @click="removeAdFromList(index)" class="p-1.5 text-red-400 hover:bg-red-50 rounded-md transition-colors">
-                                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
-                                                </button>
-                                            </div>
+                                            <button @click="removeAdFromList(index)" class="p-1.5 text-red-400 hover:bg-red-50 rounded-md transition-colors"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
                                         </div>
                                     </template>
                                 </div>
@@ -209,31 +227,28 @@
 
                         <div class="lg:col-span-2 space-y-4">
                             <div class="bg-white p-6 rounded-2xl border shadow-sm">
-                                <h3 class="font-black text-sm uppercase mb-4 text-red-600 italic border-b pb-2">2. Registro de Inversión</h3>
+                                <h3 class="font-black text-sm uppercase mb-4 text-slate-800 italic border-b pb-2">Registrar Gasto de Publicidad</h3>
                                 <form @submit.prevent="addExpense()" class="flex flex-wrap gap-4 items-end">
                                     <div class="flex-1 min-w-[200px]">
-                                        <label class="text-[10px] font-black uppercase text-slate-400">Seleccionar Anuncio</label>
-                                        <select x-model="expenseForm.adName" required class="w-full border-2 border-slate-100 rounded-lg p-2.5 font-bold outline-none focus:border-red-400">
-                                            <option value="">-- Elegir Campaña --</option>
+                                        <label class="text-[10px] font-black uppercase text-slate-400">Campaña</label>
+                                        <select x-model="expenseForm.adName" required class="w-full border-2 border-slate-100 rounded-lg p-2.5 font-bold outline-none">
+                                            <option value="">-- Seleccionar --</option>
                                             <template x-for="ad in activeAds" :key="ad">
                                                 <option :value="ad" x-text="ad"></option>
                                             </template>
                                         </select>
                                     </div>
                                     <div class="w-32">
-                                        <label class="text-[10px] font-black uppercase text-slate-400">Monto ($)</label>
-                                        <input type="number" step="0.01" x-model="expenseForm.amount" required class="w-full border-2 border-slate-100 rounded-lg p-2.5 font-bold outline-none focus:border-red-400">
+                                        <label class="text-[10px] font-black uppercase text-slate-400">Inversión ($)</label>
+                                        <input type="number" step="0.01" x-model="expenseForm.amount" required class="w-full border-2 border-slate-100 rounded-lg p-2.5 font-bold outline-none">
                                     </div>
-                                    <button type="submit" class="bg-slate-900 text-white px-6 py-2.5 rounded-lg font-black text-xs uppercase shadow-md active:scale-95 transition-all">
-                                        Registrar
-                                    </button>
+                                    <button type="submit" class="bg-slate-900 text-white px-6 py-2.5 rounded-lg font-black text-xs uppercase">Registrar</button>
                                 </form>
                             </div>
-
                             <div class="bg-white rounded-xl border shadow-sm overflow-hidden">
                                 <table class="w-full text-left">
                                     <thead class="bg-slate-50 text-[10px] font-black text-slate-400 uppercase">
-                                        <tr><th class="px-6 py-4">Anuncio</th><th class="px-6 py-4">Monto</th><th class="px-6 py-4">Fecha</th><th class="px-6 py-4"></th></tr>
+                                        <tr><th class="px-6 py-4">Campaña</th><th class="px-6 py-4">Monto</th><th class="px-6 py-4">Fecha</th><th class="px-6 py-4"></th></tr>
                                     </thead>
                                     <tbody class="divide-y divide-slate-100">
                                         <template x-for="(exp, index) in expenses" :key="index">
@@ -250,32 +265,35 @@
                         </div>
                     </div>
                 </template>
-
             </div>
 
             <div x-show="modalOpen" x-cloak class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
                 <div class="bg-white rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden max-h-[90vh] overflow-y-auto">
                     <div class="p-6 border-b flex justify-between items-center bg-slate-50">
-                        <h3 class="text-lg font-black uppercase italic" x-text="form.id ? 'Editar Lead' : 'Nuevo Registro'"></h3>
+                        <h3 class="text-lg font-black uppercase italic" x-text="form.id ? 'Ficha de Cliente' : 'Nuevo Lead Totalplay'"></h3>
                         <button @click="modalOpen = false" class="text-slate-400 hover:text-red-500 transition-colors"><i data-lucide="x"></i></button>
                     </div>
-                    <form @submit.prevent="saveLead()" class="p-6 space-y-4 text-left">
+                    <form @submit.prevent="saveLead()" class="p-6 space-y-4">
                         <div class="grid grid-cols-2 gap-4">
-                            <div class="col-span-2">
-                                <label class="text-[10px] font-black uppercase text-slate-400 tracking-tighter">Teléfono Principal *</label>
-                                <input x-model="form.phone" required class="w-full border-2 border-blue-50 rounded-xl p-3 focus:border-blue-500 outline-none font-black text-lg text-blue-600">
+                            <div class="col-span-2 md:col-span-1">
+                                <label class="text-[10px] font-black uppercase text-slate-400">WhatsApp / Teléfono *</label>
+                                <input x-model="form.phone" required class="w-full border-2 border-pink-50 rounded-xl p-2.5 focus:border-pink-500 outline-none font-black text-pink-600">
+                            </div>
+                            <div class="col-span-2 md:col-span-1">
+                                <label class="text-[10px] font-black uppercase text-slate-400">Correo Electrónico</label>
+                                <input type="email" x-model="form.email" class="w-full border-2 border-slate-100 rounded-xl p-2.5 font-bold outline-none">
                             </div>
                             <div>
-                                <label class="text-[10px] font-black uppercase text-slate-400">Fuente *</label>
+                                <label class="text-[10px] font-black uppercase text-slate-400">Origen *</label>
                                 <select x-model="form.source" class="w-full border-2 border-slate-100 rounded-xl p-2.5 font-bold outline-none">
                                     <option value="Facebook">Facebook</option>
                                     <option value="Instagram">Instagram</option>
-                                    <option value="WhatsApp">WhatsApp</option>
+                                    <option value="WhatsApp">WhatsApp Directo</option>
                                     <option value="Llamada">Llamada</option>
                                 </select>
                             </div>
                             <div>
-                                <label class="text-[10px] font-black uppercase text-slate-400">Anuncio Activo *</label>
+                                <label class="text-[10px] font-black uppercase text-slate-400">Campaña de Ads *</label>
                                 <select x-model="form.adName" required class="w-full border-2 border-slate-100 rounded-xl p-2.5 font-bold outline-none">
                                     <option value="Orgánico">Orgánico</option>
                                     <template x-for="ad in activeAds" :key="ad">
@@ -283,28 +301,26 @@
                                     </template>
                                 </select>
                             </div>
-                            <div class="col-span-2 border-t pt-2 my-2"><p class="text-[9px] font-black text-slate-300 uppercase italic">Campos Opcionales</p></div>
                             <div class="col-span-1"><label class="text-[10px] font-black text-slate-400 uppercase">Nombre</label><input x-model="form.name" class="w-full border border-slate-200 rounded-lg p-2 text-sm font-bold"></div>
-                            <div class="col-span-1"><label class="text-[10px] font-black text-slate-400 uppercase">Plan Interés</label><input x-model="form.plan" class="w-full border border-slate-200 rounded-lg p-2 text-sm font-bold"></div>
-                            <div class="col-span-2"><label class="text-[10px] font-black text-slate-400 uppercase">Correo Electrónico</label><input type="email" x-model="form.email" class="w-full border border-slate-200 rounded-lg p-2 text-sm font-bold"></div>
+                            <div class="col-span-1"><label class="text-[10px] font-black text-slate-400 uppercase">Plan</label><input x-model="form.plan" class="w-full border border-slate-200 rounded-lg p-2 text-sm font-bold"></div>
                             
-                            <div class="col-span-2"><label class="text-[10px] font-black text-slate-400 uppercase">Etapa del Proceso</label>
-                                <select x-model="form.stage" class="w-full border-2 border-blue-100 rounded-xl p-3 font-black text-blue-600 bg-blue-50/30 outline-none">
+                            <div class="col-span-2">
+                                <label class="text-[10px] font-black text-slate-400 uppercase">Notas / Domicilio</label>
+                                <textarea x-model="form.notes" rows="3" class="w-full border border-slate-200 rounded-xl p-3 text-sm font-medium outline-none focus:border-pink-500 bg-slate-50/50" placeholder="Dirección exacta y comentarios..."></textarea>
+                            </div>
+                            
+                            <div class="col-span-2"><label class="text-[10px] font-black text-slate-400 uppercase">Etapa del Funnel</label>
+                                <select x-model="form.stage" class="w-full border-2 border-pink-100 rounded-xl p-3 font-black text-pink-600 bg-pink-50/30 outline-none">
                                     <template x-for="s in stages" :key="s"><option :value="s" x-text="s"></option></template>
                                 </select>
                             </div>
 
-                            <template x-if="form.stage === 'Venta Instalada'">
-                                <div class="col-span-2 p-4 bg-green-50 border-2 border-green-200 rounded-xl grid grid-cols-2 gap-4 animate-pulse">
-                                    <div><label class="text-[10px] font-black text-green-600">Fecha Cierre</label><input type="date" x-model="form.installDate" required class="w-full border rounded p-1.5 font-black"></div>
-                                    <div><label class="text-[10px] font-black text-green-600">Comisión ($)</label><input type="number" x-model="form.commission" required class="w-full border rounded p-1.5 font-black"></div>
-                                </div>
-                            </template>
+                            <div class="col-span-2 p-4 bg-slate-50 border border-slate-200 rounded-xl grid grid-cols-2 gap-4">
+                                <div><label class="text-[10px] font-black text-slate-500 uppercase">Fecha Instalación</label><input type="date" x-model="form.installDate" class="w-full border rounded p-1.5 font-black text-xs"></div>
+                                <div><label class="text-[10px] font-black text-slate-500 uppercase">Comisión ($)</label><input type="number" x-model="form.commission" class="w-full border rounded p-1.5 font-black text-xs"></div>
+                            </div>
                         </div>
-                        <div class="pt-4 flex gap-2">
-                            <button type="button" @click="modalOpen = false" class="flex-1 py-3 font-black text-[10px] uppercase text-slate-400">Cancelar</button>
-                            <button type="submit" class="flex-1 py-3 bg-[#1877F2] text-white rounded-xl font-black text-[10px] uppercase shadow-lg">Guardar Registro</button>
-                        </div>
+                        <button type="submit" class="w-full py-3 bg-pink-600 text-white rounded-xl font-black text-[10px] uppercase shadow-lg">Guardar Lead</button>
                     </form>
                 </div>
             </div>
@@ -319,49 +335,40 @@
                 modalOpen: false,
                 newAdName: '',
                 activeAds: [],
-                stages: ['Nuevo', '1er Contacto', '2do Contacto', 'Calificado Internet', 'Calificado Internet+TV', 'No Calificado', 'Venta Instalada', 'Perdida'],
+                stages: ['Nuevo', '1er Contacto', '2do Contacto', 'Calificado Internet', 'Calificado Internet+TV', 'Venta Instalada', 'Perdida'],
                 leads: [],
                 expenses: [],
                 form: {},
                 expenseForm: { adName: '', amount: 0 },
-                
+
                 init() {
-                    this.leads = JSON.parse(localStorage.getItem('crm_leads_v11') || '[]');
-                    this.expenses = JSON.parse(localStorage.getItem('crm_exp_v11') || '[]');
-                    this.activeAds = JSON.parse(localStorage.getItem('crm_ads_v11') || '["Promo Fibra Gamer", "Combo TV Familiar"]');
+                    this.leads = JSON.parse(localStorage.getItem('crm_tp_full_v4') || '[]');
+                    this.expenses = JSON.parse(localStorage.getItem('crm_tp_exp_v4') || '[]');
+                    this.activeAds = JSON.parse(localStorage.getItem('crm_tp_ads_v4') || '["Instagram Promo", "Facebook Ads"]');
                     
-                    this.$watch('leads', v => localStorage.setItem('crm_leads_v11', JSON.stringify(v)));
-                    this.$watch('expenses', v => localStorage.setItem('crm_exp_v11', JSON.stringify(v)));
-                    this.$watch('activeAds', v => localStorage.setItem('crm_ads_v11', JSON.stringify(v)));
+                    this.$watch('leads', v => localStorage.setItem('crm_tp_full_v4', JSON.stringify(v)));
+                    this.$watch('expenses', v => localStorage.setItem('crm_tp_exp_v4', JSON.stringify(v)));
+                    this.$watch('activeAds', v => localStorage.setItem('crm_tp_ads_v4', JSON.stringify(v)));
                     
                     setTimeout(() => lucide.createIcons(), 150);
+                },
+
+                getWhatsAppLink(lead) {
+                    if (!lead.phone) return '#';
+                    const nombre = lead.name ? lead.name : "un gusto saludarte";
+                    const msg = `Hola ${nombre}, te saluda Juan Melendez de Totalplay. 👋 Vi tu interés en nuestros planes. ¿En qué puedo apoyarte?`;
+                    const cleanPhone = lead.phone.replace(/\D/g, ''); 
+                    return `https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg)}`;
                 },
 
                 addAdToList() {
                     if (this.newAdName.trim() && !this.activeAds.includes(this.newAdName)) {
                         this.activeAds.push(this.newAdName.trim());
                         this.newAdName = '';
-                        setTimeout(() => lucide.createIcons(), 50);
                     }
                 },
-
-                editAdName(index) {
-                    const oldName = this.activeAds[index];
-                    const newName = prompt('Nuevo nombre para este anuncio:', oldName);
-                    if (newName && newName.trim() !== '' && newName !== oldName) {
-                        const validated = newName.trim();
-                        this.leads = this.leads.map(l => { if(l.adName === oldName) l.adName = validated; return l; });
-                        this.expenses = this.expenses.map(e => { if(e.adName === oldName) e.adName = validated; return e; });
-                        this.activeAds[index] = validated;
-                    }
-                },
-
-                removeAdFromList(index) {
-                    if (confirm('¿Eliminar anuncio? Los datos históricos no se borrarán pero el anuncio no aparecerá en nuevas listas.')) {
-                        this.activeAds.splice(index, 1);
-                    }
-                },
-
+                removeAdFromList(index) { if (confirm('¿Eliminar campaña?')) this.activeAds.splice(index, 1); },
+                
                 getAdLeadCount(ad) { return this.leads.filter(l => l.adName === ad).length; },
                 getAdStageCount(ad, stage) { return this.leads.filter(l => l.adName === ad && l.stage === stage).length; },
                 getAdSalesCount(ad) { return this.leads.filter(l => l.adName === ad && l.stage === 'Venta Instalada').length; },
@@ -371,7 +378,6 @@
                     const cost = this.getAdTotalExpense(ad);
                     return sales > 0 ? (cost / sales).toFixed(1) : cost;
                 },
-
                 totalExpenses() { return this.expenses.reduce((acc, curr) => acc + Number(curr.amount), 0); },
                 totalCommission() { return this.leads.reduce((acc, curr) => acc + Number(curr.commission || 0), 0); },
                 calculateCPA() {
@@ -387,41 +393,23 @@
                 addExpense() {
                     this.expenses.push({ ...this.expenseForm, date: new Date().toISOString() });
                     this.expenseForm.amount = 0;
-                    this.expenseForm.adName = '';
                 },
-
                 openModal(lead = null) {
-                    if (lead) { 
-                        this.form = JSON.parse(JSON.stringify(lead)); 
-                    } else { 
-                        this.form = { source: 'Facebook', stage: 'Nuevo', adName: 'Orgánico', commission: 0, createdAt: new Date().toISOString(), phone: '', name: '', plan: '', email: '', installDate: '' }; 
-                    }
+                    if (lead) { this.form = JSON.parse(JSON.stringify(lead)); } 
+                    else { this.form = { source: 'Facebook', stage: 'Nuevo', adName: 'Orgánico', commission: 0, phone: '', email: '', notes: '', name: '', installDate: '' }; }
                     this.modalOpen = true;
                     setTimeout(() => lucide.createIcons(), 100);
                 },
-
                 saveLead() {
-                    if (this.form.id) { 
-                        this.leads = this.leads.map(l => l.id === this.form.id ? this.form : l); 
-                    } else { 
-                        this.form.id = Date.now(); 
-                        this.leads.push({...this.form}); 
-                    }
+                    if (this.form.id) { this.leads = this.leads.map(l => l.id === this.form.id ? this.form : l); } 
+                    else { this.form.id = Date.now(); this.leads.push(this.form); }
                     this.modalOpen = false;
                 },
-
                 exportToExcel() {
-                    const dataToExport = this.leads.map(lead => ({
-                        "Fecha instalada": lead.installDate || '-',
-                        "Nombre": lead.name || '-',
-                        "Correo": lead.email || '-',
-                        "Telefono": lead.phone || '-',
-                        "Plan": lead.plan || '-'
-                    }));
-                    const ws = XLSX.utils.json_to_sheet(dataToExport);
+                    const ws = XLSX.utils.json_to_sheet(this.leads);
                     const wb = XLSX.utils.book_new();
                     XLSX.utils.book_append_sheet(wb, ws, "Leads");
-                    XLSX.writeFile(wb, "Reporte_Ventas_NetCRM.xlsx");
+                    XLSX.writeFile(wb, "CRM_Totalplay_JuanMelendez.xlsx");
                 }
             }
         }
