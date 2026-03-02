@@ -3,199 +3,316 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NetCRM Totalplay | Juan Melendez</title>
+    <title>NetCRM Totalplay Ultra Pro | v7.0 Enterprise</title>
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@200;300;400;500;600;700;800&display=swap');
+
+        :root {
+            --tp-pink: #E6007E;
+            --tp-dark: #0F172A;
+            --tp-slate: #64748B;
+            --glass: rgba(255, 255, 255, 0.9);
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #F8FAFC;
+            color: var(--tp-dark);
+            height: 100vh;
+            overflow: hidden;
+        }
+
         [x-cloak] { display: none !important; }
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-        .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-        .line-clamp-3 { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+
+        /* Scrollbars Estilizados */
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: var(--tp-pink); }
+
+        /* Animaciones */
+        .page-enter { animation: slideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Card Designs */
+        .glass-card {
+            background: var(--glass);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            border-radius: 2rem;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Config Card Contextual Backgrounds */
+        .bg-config-plans { background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 100%); border: 1px solid #f9a8d4; }
+        .bg-config-traffic { background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border: 1px solid #86efac; }
+        .bg-config-funnel { background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border: 1px solid #93c5fd; }
+        .bg-config-invest { background: linear-gradient(135deg, #fafaf9 0%, #f5f5f4 100%); border: 1px solid #d6d3d1; }
+
+        /* Inputs Pro */
+        .form-input {
+            width: 100%;
+            padding: 1rem 1.25rem;
+            border-radius: 1rem;
+            border: 2px solid #E2E8F0;
+            outline: none;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        .form-input:focus { border-color: var(--tp-pink); box-shadow: 0 0 0 4px rgba(230, 0, 126, 0.1); }
+
+        /* Kanban Column Colors */
+        .kanban-col { min-width: 320px; max-width: 320px; border-radius: 2rem; height: calc(100vh - 300px); display: flex; flex-direction: column; }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-900 overflow-hidden font-sans" x-data="crmApp()" x-init="init()">
+<body x-data="crmEngine()" x-init="init()">
 
-    <div class="flex h-screen w-full">
-        <aside :class="sidebarOpen ? 'w-64' : 'w-20'" class="bg-[#0F172A] text-white transition-all duration-300 flex flex-col z-20">
-            <div class="p-6 flex items-center gap-3 border-b border-slate-800">
-                <div class="w-8 h-8 bg-pink-600 rounded-lg flex items-center justify-center font-bold shrink-0 shadow-lg shadow-pink-500/20">T</div>
-                <span x-show="sidebarOpen" class="font-bold text-xl tracking-tighter italic">TOTALPLAY <span class="text-xs block text-pink-500 font-normal not-italic">Asesor Pro</span></span>
+    <div class="flex h-full w-full">
+        
+        <aside class="w-24 lg:w-72 bg-[#0F172A] flex flex-col transition-all duration-500 z-50">
+            <div class="p-8 flex items-center gap-4">
+                <div class="w-12 h-12 bg-pink-600 rounded-2xl flex items-center justify-center shadow-lg shadow-pink-500/20">
+                    <i data-lucide="layers" class="text-white"></i>
+                </div>
+                <div class="hidden lg:block">
+                    <h1 class="text-white font-black italic tracking-tighter text-xl">NETCRM</h1>
+                    <p class="text-pink-500 text-[10px] font-bold tracking-[0.3em]">PRO EDITION</p>
+                </div>
             </div>
-            <nav class="flex-1 p-4 space-y-2">
-                <button @click="activeTab = 'dashboard'" :class="activeTab === 'dashboard' ? 'bg-pink-600' : 'hover:bg-slate-800'" class="w-full flex items-center gap-4 p-3 rounded-xl transition-all">
-                    <i data-lucide="bar-chart-3"></i> <span x-show="sidebarOpen" class="font-bold text-sm">Dashboard</span>
-                </button>
-                <button @click="activeTab = 'leads'" :class="activeTab === 'leads' ? 'bg-pink-600' : 'hover:bg-slate-800'" class="w-full flex items-center gap-4 p-3 rounded-xl transition-all">
-                    <i data-lucide="users"></i> <span x-show="sidebarOpen" class="font-bold text-sm">Leads</span>
-                </button>
-                <button @click="activeTab = 'kanban'" :class="activeTab === 'kanban' ? 'bg-pink-600' : 'hover:bg-slate-800'" class="w-full flex items-center gap-4 p-3 rounded-xl transition-all">
-                    <i data-lucide="columns"></i> <span x-show="sidebarOpen" class="font-bold text-sm">Pipeline</span>
-                </button>
-                <button @click="activeTab = 'expenses'" :class="activeTab === 'expenses' ? 'bg-pink-600' : 'hover:bg-slate-800'" class="w-full flex items-center gap-4 p-3 rounded-xl transition-all">
-                    <i data-lucide="cog"></i> <span x-show="sidebarOpen" class="font-bold text-sm">Ads & Gastos</span>
-                </button>
+
+            <nav class="flex-1 px-4 py-10 space-y-4">
+                <template x-for="item in menu" :key="item.id">
+                    <button @click="currentTab = item.id" 
+                        :class="currentTab === item.id ? 'bg-pink-600 text-white shadow-lg' : 'text-slate-400 hover:bg-slate-800 hover:text-white'"
+                        class="w-full flex items-center gap-4 p-4 rounded-2xl transition-all group">
+                        <i :data-lucide="item.icon" class="w-6 h-6"></i>
+                        <span class="hidden lg:block font-bold text-xs uppercase tracking-widest" x-text="item.label"></span>
+                    </button>
+                </template>
             </nav>
-            <div class="p-4 border-t border-slate-800" x-show="sidebarOpen">
-                <p class="text-[10px] text-slate-500 font-black uppercase">Asesor</p>
-                <p class="text-xs font-bold text-slate-200">Juan Melendez</p>
+
+            <div class="p-8 border-t border-slate-800">
+                <div class="hidden lg:block bg-slate-800/50 p-4 rounded-2xl">
+                    <p class="text-[10px] text-slate-500 font-bold uppercase mb-2">Sync Status</p>
+                    <div class="flex items-center gap-2">
+                        <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                        <span class="text-xs text-white font-bold">Cloud Active</span>
+                    </div>
+                </div>
             </div>
         </aside>
 
         <main class="flex-1 flex flex-col min-w-0 overflow-hidden">
-            <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8 shrink-0">
-                <h2 class="text-lg font-black text-slate-700 uppercase" x-text="activeTab"></h2>
-                <div class="flex items-center gap-4">
-                    <div class="hidden md:block text-right">
-                        <p class="text-[9px] font-black text-slate-400 uppercase">Utilidad Neta</p>
-                        <p class="text-sm font-black text-green-600" x-text="'$' + (totalCommission() - totalExpenses())"></p>
+            
+            <header class="h-24 bg-white border-b border-slate-200 flex items-center justify-between px-10 shrink-0">
+                <div class="flex items-center gap-10">
+                    <div>
+                        <h2 class="text-2xl font-black text-slate-800 uppercase italic tracking-tighter" x-text="getActiveTitle()"></h2>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest" x-text="new Date().toLocaleDateString('es-ES', {weekday: 'long', day:'numeric', month:'long'})"></p>
                     </div>
-                    <button @click="openModal()" class="bg-pink-600 text-white px-5 py-2 rounded-lg text-xs font-black shadow-lg hover:bg-pink-700 transition-colors">
-                        + NUEVO LEAD
-                    </button>
+
+                    <div class="flex items-center gap-4 bg-emerald-50 px-6 py-3 rounded-2xl border border-emerald-100">
+                        <div>
+                            <p class="text-[9px] font-black text-emerald-600 uppercase tracking-widest">Utilidad Neta Periodo</p>
+                            <p class="text-xl font-black text-emerald-700" x-text="'$' + formatCurrency(globalStats.netProfit)"></p>
+                        </div>
+                        <i data-lucide="trending-up" class="text-emerald-500"></i>
+                    </div>
                 </div>
+
+                <button @click="openLeadModal()" class="bg-[#0F172A] text-white px-8 py-4 rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] flex items-center gap-3 hover:bg-pink-600 transition-all shadow-xl shadow-slate-200">
+                    <i data-lucide="plus-circle" class="w-5 h-5"></i> Agregar Lead
+                </button>
             </header>
 
-            <div class="flex-1 overflow-auto p-6">
+            <div class="flex-1 overflow-y-auto p-10 custom-scrollbar">
                 
-                <template x-if="activeTab === 'dashboard'">
-                    <div class="space-y-6">
-                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                            <div class="bg-white p-5 rounded-2xl border shadow-sm border-l-4 border-l-red-500">
-                                <p class="text-[10px] font-black text-slate-400 uppercase">Inversión Ads</p>
-                                <p class="text-xl font-black text-slate-800" x-text="'$' + totalExpenses()"></p>
-                            </div>
-                            <div class="bg-white p-5 rounded-2xl border shadow-sm border-l-4 border-l-green-500">
-                                <p class="text-[10px] font-black text-slate-400 uppercase">Comisiones</p>
-                                <p class="text-xl font-black text-slate-800" x-text="'$' + totalCommission()"></p>
-                            </div>
-                            <div class="bg-white p-5 rounded-2xl border shadow-sm border-l-4 border-l-pink-500">
-                                <p class="text-[10px] font-black text-slate-400 uppercase">CPA Global</p>
-                                <p class="text-xl font-black text-slate-800" x-text="'$' + calculateCPA()"></p>
-                            </div>
-                            <div class="bg-white p-5 rounded-2xl border shadow-sm border-l-4 border-l-indigo-500">
-                                <p class="text-[10px] font-black text-slate-400 uppercase">ROI</p>
-                                <p class="text-xl font-black text-slate-800" x-text="calculateROI() + '%'"></p>
-                            </div>
+                <div x-show="currentTab === 'dashboard'" class="page-enter space-y-10">
+                    
+                    <div class="flex flex-wrap items-center justify-between gap-6">
+                        <div class="flex items-center gap-2 bg-white p-2 rounded-2xl border border-slate-200 shadow-sm">
+                            <button @click="setRange('recent')" :class="filterRange === 'recent' ? 'bg-slate-900 text-white' : 'text-slate-500 hover:bg-slate-50'" class="px-6 py-3 rounded-xl text-[10px] font-black uppercase transition-all">Ayer y Hoy</button>
+                            <button @click="setRange('this_week')" :class="filterRange === 'this_week' ? 'bg-slate-900 text-white' : 'text-slate-500 hover:bg-slate-50'" class="px-6 py-3 rounded-xl text-[10px] font-black uppercase transition-all">Esta Semana</button>
+                            <button @click="setRange('last_week')" :class="filterRange === 'last_week' ? 'bg-slate-900 text-white' : 'text-slate-500 hover:bg-slate-50'" class="px-6 py-3 rounded-xl text-[10px] font-black uppercase transition-all">Semana Pasada</button>
+                            <button @click="setRange('this_month')" :class="filterRange === 'this_month' ? 'bg-slate-900 text-white' : 'text-slate-500 hover:bg-slate-50'" class="px-6 py-3 rounded-xl text-[10px] font-black uppercase transition-all">Este Mes</button>
+                            <button @click="setRange('custom')" :class="filterRange === 'custom' ? 'bg-pink-600 text-white' : 'text-slate-500 hover:bg-slate-50'" class="px-6 py-3 rounded-xl text-[10px] font-black uppercase transition-all">Personalizado</button>
                         </div>
 
-                        <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
-                            <template x-for="ad in activeAds" :key="ad">
-                                <div class="bg-white rounded-xl border p-6 shadow-sm">
-                                    <div class="flex justify-between items-center mb-6">
-                                        <div>
-                                            <h4 class="font-black text-slate-800 uppercase text-base" x-text="ad"></h4>
-                                            <p class="text-[10px] font-bold text-pink-500" x-text="getAdLeadCount(ad) + ' LEADS TOTALES'"></p>
-                                        </div>
-                                        <div class="text-right">
-                                            <p class="text-[10px] font-black text-slate-400 uppercase">CPA Campaña</p>
-                                            <p class="text-lg font-black text-pink-600" x-text="'$' + getAdCPA(ad)"></p>
-                                        </div>
-                                    </div>
-                                    <div class="space-y-2">
-                                        <template x-for="stage in stages" :key="stage">
-                                            <div>
-                                                <div class="flex justify-between items-center text-[10px] mb-1">
-                                                    <span class="font-bold text-slate-600 uppercase" x-text="stage"></span>
-                                                    <span class="font-black text-slate-900" x-text="getAdStageCount(ad, stage)"></span>
-                                                </div>
-                                                <div class="w-full bg-slate-100 h-1.5 rounded-full">
-                                                    <div class="bg-pink-500 h-full rounded-full transition-all duration-500" 
-                                                         :style="'width: ' + (getAdLeadCount(ad) > 0 ? (getAdStageCount(ad, stage)/getAdLeadCount(ad)*100) : 0) + '%'"></div>
-                                                </div>
-                                            </div>
-                                        </template>
-                                    </div>
-                                </div>
-                            </template>
+                        <div x-show="filterRange === 'custom'" x-transition class="flex items-center gap-4 animate-up">
+                            <input type="date" x-model="customDates.start" class="px-4 py-2 rounded-xl border border-slate-200 text-xs font-bold outline-none focus:border-pink-500">
+                            <span class="font-bold text-slate-400">a</span>
+                            <input type="date" x-model="customDates.end" class="px-4 py-2 rounded-xl border border-slate-200 text-xs font-bold outline-none focus:border-pink-500">
                         </div>
                     </div>
-                </template>
 
-                <template x-if="activeTab === 'leads'">
-                    <div class="bg-white rounded-xl border shadow-sm overflow-hidden">
-                        <div class="p-4 bg-slate-50 border-b flex justify-between items-center">
-                            <h3 class="font-black text-xs uppercase italic">Base de Datos de Prospectos</h3>
-                            <button @click="exportToExcel()" class="bg-emerald-600 text-white px-3 py-1.5 rounded-lg text-[10px] font-black flex items-center gap-2">
-                                <i data-lucide="download" class="w-4 h-4"></i> EXCEL
-                            </button>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                        <div class="glass-card p-8 border-l-8 border-blue-500">
+                            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Gasto Publicidad</p>
+                            <h3 class="text-3xl font-black text-slate-800" x-text="'$' + formatCurrency(globalStats.totalSpent)"></h3>
                         </div>
-                        <div class="overflow-x-auto">
+                        <div class="glass-card p-8 border-l-8 border-indigo-500">
+                            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">CPA Promedio</p>
+                            <h3 class="text-3xl font-black text-slate-800" x-text="'$' + formatCurrency(globalStats.avgCpa)"></h3>
+                        </div>
+                        <div class="glass-card p-8 border-l-8 border-emerald-500">
+                            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Ingresos Brutos</p>
+                            <h3 class="text-3xl font-black text-slate-800" x-text="'$' + formatCurrency(globalStats.grossRevenue)"></h3>
+                        </div>
+                        <div class="glass-card p-8 border-l-8 border-pink-500">
+                            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">ROI (Retorno)</p>
+                            <h3 class="text-3xl font-black text-slate-800" x-text="globalStats.roi + '%'"></h3>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
+                        <template x-for="ad in getActiveAdsForFilter()" :key="ad">
+                            <div class="glass-card p-10 relative overflow-hidden group">
+                                <div class="flex justify-between items-start mb-10">
+                                    <div>
+                                        <h4 class="text-2xl font-black text-slate-800 italic uppercase tracking-tighter" x-text="ad"></h4>
+                                        <p class="text-[11px] font-bold text-pink-500 uppercase tracking-widest mt-1">Reporte de Desempeño</p>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="text-[10px] font-black text-slate-400 uppercase">Inversión Canal</p>
+                                        <p class="text-xl font-black text-slate-800" x-text="'$' + formatCurrency(getAdMetrics(ad).spent)"></p>
+                                    </div>
+                                </div>
+
+                                <div class="space-y-6">
+                                    <template x-for="st in config.funnel" :key="st">
+                                        <div class="space-y-2">
+                                            <div class="flex justify-between items-end px-1">
+                                                <span class="text-[10px] font-black text-slate-500 uppercase tracking-wider" x-text="st"></span>
+                                                <span class="text-xs font-black text-slate-800" x-text="getAdCountByStage(ad, st) + ' leads'"></span>
+                                            </div>
+                                            <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                                                <div class="bg-gradient-to-r from-pink-500 to-indigo-600 h-full rounded-full transition-all duration-1000" 
+                                                     :style="'width: ' + getAdStagePercent(ad, st) + '%'"></div>
+                                            </div>
+                                        </div>
+                                    </template>
+                                </div>
+
+                                <div class="mt-10 pt-8 border-t border-slate-100 grid grid-cols-3 gap-4">
+                                    <div class="text-center">
+                                        <p class="text-[9px] font-black text-slate-400 uppercase mb-1">Ventas</p>
+                                        <p class="text-lg font-black text-emerald-600" x-text="getAdMetrics(ad).sales"></p>
+                                    </div>
+                                    <div class="text-center">
+                                        <p class="text-[9px] font-black text-slate-400 uppercase mb-1">CPA</p>
+                                        <p class="text-lg font-black text-slate-800" x-text="'$' + formatCurrency(getAdMetrics(ad).cpa)"></p>
+                                    </div>
+                                    <div class="text-center">
+                                        <p class="text-[9px] font-black text-slate-400 uppercase mb-1">Conversión</p>
+                                        <p class="text-lg font-black text-indigo-600" x-text="getAdMetrics(ad).conv + '%'"></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+
+                <div x-show="currentTab === 'leads'" class="page-enter space-y-8">
+                    <div class="flex justify-between items-center bg-white p-8 rounded-3xl border border-slate-200">
+                        <div class="relative w-96">
+                            <i data-lucide="search" class="w-5 h-5 absolute left-5 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                            <input type="text" x-model="searchLead" placeholder="Buscar por Nombre o Teléfono..." class="w-full pl-14 pr-6 py-4 bg-slate-50 border-none rounded-2xl text-sm font-bold focus:ring-2 focus:ring-pink-500/20 transition-all">
+                        </div>
+                        <button @click="exportToExcel()" class="bg-emerald-600 text-white px-8 py-4 rounded-2xl font-black text-[11px] uppercase tracking-widest flex items-center gap-3 hover:bg-emerald-700 shadow-xl shadow-emerald-100 transition-all">
+                            <i data-lucide="download" class="w-5 h-5"></i> Exportar Ventas Instaladas
+                        </button>
+                    </div>
+
+                    <div class="bg-white rounded-[2.5rem] border border-slate-200 overflow-hidden shadow-sm">
+                        <div class="overflow-x-auto custom-scrollbar">
                             <table class="w-full text-left">
-                                <thead class="bg-slate-50 text-[10px] font-black text-slate-400 uppercase">
-                                    <tr>
-                                        <th class="px-6 py-4 border-b w-48">Lead / Contacto</th>
-                                        <th class="px-6 py-4 border-b w-64">Notas / Domicilio</th>
-                                        <th class="px-6 py-4 border-b">Correo</th>
-                                        <th class="px-6 py-4 border-b">Origen</th>
-                                        <th class="px-6 py-4 border-b text-center">WhatsApp</th>
-                                        <th class="px-6 py-4 border-b">Instalación</th>
-                                        <th class="px-6 py-4 border-b">Comisión</th>
+                                <thead class="bg-slate-50/80 border-b border-slate-100">
+                                    <tr class="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                                        <th class="px-8 py-6">Registro</th>
+                                        <th class="px-8 py-6">Contacto</th>
+                                        <th class="px-8 py-6">Origen / Campaña</th>
+                                        <th class="px-8 py-6">Plan / Comis.</th>
+                                        <th class="px-8 py-6">Estado</th>
+                                        <th class="px-8 py-6 text-center">WS</th>
+                                        <th class="px-8 py-6 text-right">Instalación</th>
                                     </tr>
                                 </thead>
-                                <tbody class="divide-y divide-slate-100">
-                                    <template x-for="lead in leads" :key="lead.id">
-                                        <tr @click="openModal(lead)" class="hover:bg-pink-50/30 cursor-pointer transition-colors group">
-                                            <td class="px-6 py-4">
-                                                <div class="font-black text-slate-800 group-hover:text-pink-600" x-text="lead.phone"></div>
-                                                <div class="text-[10px] text-slate-400 uppercase font-bold" x-text="lead.name || 'Sin Nombre'"></div>
+                                <tbody class="divide-y divide-slate-50">
+                                    <template x-for="lead in filteredLeads" :key="lead.id">
+                                        <tr @click="editLead(lead)" class="hover:bg-slate-50/50 cursor-pointer transition-all group">
+                                            <td class="px-8 py-6">
+                                                <div class="font-bold text-slate-800 text-xs" x-text="formatDate(lead.createdAt)"></div>
+                                                <div class="text-[10px] text-slate-400" x-text="formatTime(lead.createdAt)"></div>
                                             </td>
-                                            <td class="px-6 py-4">
-                                                <div class="text-[11px] text-slate-600 italic font-medium line-clamp-2" x-text="lead.notes || '- No hay notas -'"></div>
+                                            <td class="px-8 py-6">
+                                                <div class="font-black text-slate-800 text-sm group-hover:text-pink-600" x-text="lead.name || 'Sin Nombre'"></div>
+                                                <div class="text-[11px] font-bold text-slate-400" x-text="lead.phone"></div>
+                                                <div class="text-[10px] text-slate-300 italic" x-text="lead.email"></div>
                                             </td>
-                                            <td class="px-6 py-4 text-[10px] font-medium text-slate-500" x-text="lead.email || '-'"></td>
-                                            <td class="px-6 py-4">
-                                                <div class="font-bold uppercase text-[9px] text-slate-500" x-text="lead.source"></div>
-                                                <div class="text-[8px] text-slate-400 font-black" x-text="lead.adName"></div>
+                                            <td class="px-8 py-6">
+                                                <span class="block text-[10px] font-black text-indigo-600 uppercase" x-text="lead.sourceType"></span>
+                                                <span class="block text-[11px] font-bold text-slate-500 uppercase tracking-tight" x-text="lead.adName"></span>
                                             </td>
-                                            <td class="px-6 py-4 text-center" @click.stop>
-                                                <a :href="getWhatsAppLink(lead)" target="_blank" class="inline-flex items-center justify-center w-8 h-8 bg-green-500 text-white rounded-full shadow-md hover:bg-green-600">
-                                                    <i data-lucide="message-circle" class="w-4 h-4"></i>
+                                            <td class="px-8 py-6">
+                                                <div class="text-xs font-black text-slate-800" x-text="lead.plan"></div>
+                                                <div class="text-[11px] font-bold text-emerald-600" x-text="'$' + formatCurrency(lead.commission)"></div>
+                                            </td>
+                                            <td class="px-8 py-6">
+                                                <span :class="getStatusBadgeClass(lead.stage)" class="px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest border" x-text="lead.stage"></span>
+                                            </td>
+                                            <td class="px-8 py-6 text-center" @click.stop>
+                                                <a :href="getWSLink(lead)" target="_blank" class="w-10 h-10 bg-green-500 text-white rounded-xl flex items-center justify-center mx-auto hover:scale-110 transition-all shadow-lg shadow-green-100">
+                                                    <i data-lucide="message-circle" class="w-5 h-5"></i>
                                                 </a>
                                             </td>
-                                            <td class="px-6 py-4">
-                                                <div :class="lead.installDate ? 'text-green-600 font-black' : 'text-slate-300 font-bold'" class="text-[10px]" x-text="lead.installDate || 'Pendiente'"></div>
-                                            </td>
-                                            <td class="px-6 py-4 font-black text-slate-700" x-text="lead.commission ? '$'+lead.commission : '-'"></td>
+                                            <td class="px-8 py-6 text-right font-black text-xs text-slate-600" x-text="lead.installDate || '---'"></td>
                                         </tr>
                                     </template>
                                 </tbody>
                             </table>
                         </div>
                     </div>
-                </template>
+                </div>
 
-                <template x-if="activeTab === 'kanban'">
-                    <div class="flex gap-4 overflow-x-auto pb-4 h-full min-h-[500px]">
-                        <template x-for="stage in stages" :key="stage">
-                            <div class="flex-shrink-0 w-72 bg-slate-200/50 rounded-xl flex flex-col p-3 border border-slate-200">
-                                <div class="mb-4 flex justify-between items-center px-2">
-                                    <span class="text-[10px] font-black text-slate-500 uppercase tracking-tighter" x-text="stage"></span>
-                                    <span class="bg-white px-2 py-0.5 rounded text-[10px] font-black text-pink-600 shadow-sm" x-text="leads.filter(l => l.stage === stage).length"></span>
+                <div x-show="currentTab === 'kanban'" class="page-enter h-full">
+                    <div class="flex gap-8 overflow-x-auto pb-10 custom-scrollbar h-full">
+                        <template x-for="st in config.funnel" :key="st">
+                            <div x-show="getLeadsByStage(st).length > 0" class="kanban-col bg-slate-100/50 border border-slate-200 p-6 space-y-6">
+                                <div class="flex items-center justify-between px-2">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-2 h-6 rounded-full bg-pink-600 shadow-lg shadow-pink-500/30"></div>
+                                        <h3 class="font-black text-[11px] uppercase tracking-[0.2em] text-slate-600" x-text="st"></h3>
+                                    </div>
+                                    <span class="bg-white px-3 py-1 rounded-lg text-[10px] font-black text-slate-400 border border-slate-200 shadow-sm" x-text="getLeadsByStage(st).length"></span>
                                 </div>
-                                <div class="space-y-3 overflow-y-auto flex-1">
-                                    <template x-for="lead in leads.filter(l => l.stage === stage)" :key="lead.id">
-                                        <div @click="openModal(lead)" class="bg-white p-4 rounded-xl shadow-sm border-b-2 border-slate-200 cursor-pointer hover:border-pink-500 transition-all group relative">
-                                            <div class="flex justify-between mb-2">
-                                                <span class="text-[8px] font-black bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded uppercase" x-text="lead.source"></span>
-                                                <template x-if="lead.commission > 0">
-                                                    <span class="text-[10px] font-black text-green-600" x-text="'$'+lead.commission"></span>
-                                                </template>
-                                            </div>
-                                            <h5 class="font-black text-sm text-slate-800" x-text="lead.phone"></h5>
-                                            <p class="text-[9px] text-slate-400 mt-1 uppercase font-bold truncate" x-text="lead.name || 'Sin Nombre'"></p>
-                                            
-                                            <div class="mt-3 bg-slate-50 p-2 rounded-lg border border-slate-100">
-                                                <p class="text-[10px] text-slate-500 italic font-medium line-clamp-3 leading-tight" x-text="lead.notes || 'Sin notas...'"></p>
-                                            </div>
 
-                                            <div class="mt-4 pt-3 border-t border-slate-50 flex justify-end" @click.stop>
-                                                <a :href="getWhatsAppLink(lead)" target="_blank" class="flex items-center gap-1.5 bg-green-500 text-white px-3 py-1.5 rounded-lg text-[9px] font-black hover:bg-green-600 transition-all shadow-sm">
-                                                    <i data-lucide="message-circle" class="w-3 h-3"></i>
-                                                    MENSAJE
-                                                </a>
+                                <div class="flex-1 overflow-y-auto space-y-4 custom-scrollbar pr-2">
+                                    <template x-for="lead in getLeadsByStage(st)" :key="lead.id">
+                                        <div @click="editLead(lead)" class="bg-white p-6 rounded-[1.5rem] border border-slate-200 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer group">
+                                            <div class="flex justify-between items-start mb-4">
+                                                <span class="text-[9px] font-black text-indigo-500 uppercase tracking-widest bg-indigo-50 px-3 py-1 rounded-lg" x-text="lead.adName"></span>
+                                                <span class="text-[9px] font-bold text-slate-300" x-text="formatDateShort(lead.createdAt)"></span>
+                                            </div>
+                                            <h4 class="text-sm font-black text-slate-800 mb-1 group-hover:text-pink-600 transition-colors" x-text="lead.phone"></h4>
+                                            <p class="text-[11px] font-bold text-slate-400 uppercase truncate" x-text="lead.name || 'Sin nombre asignado'"></p>
+                                            
+                                            <div class="mt-6 pt-4 border-t border-slate-50 flex justify-between items-center">
+                                                <div class="flex flex-col">
+                                                    <span class="text-[8px] font-black text-slate-300 uppercase">Plan Sugerido</span>
+                                                    <span class="text-[10px] font-black text-slate-700 uppercase" x-text="lead.plan"></span>
+                                                </div>
+                                                <div class="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-slate-300 group-hover:bg-pink-50 group-hover:text-pink-500">
+                                                    <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                                                </div>
                                             </div>
                                         </div>
                                     </template>
@@ -203,124 +320,209 @@
                             </div>
                         </template>
                     </div>
-                </template>
+                </div>
 
-                <template x-if="activeTab === 'expenses'">
-                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                        <div class="lg:col-span-1 space-y-4">
-                            <div class="bg-white p-6 rounded-2xl border shadow-sm">
-                                <h3 class="font-black text-sm uppercase mb-4 text-pink-600 italic border-b pb-2">Campañas Activas</h3>
-                                <div class="flex gap-2 mb-4">
-                                    <input x-model="newAdName" @keyup.enter="addAdToList()" placeholder="Nombre de campaña..." class="flex-1 border-2 border-slate-100 rounded-lg p-2 text-sm outline-none focus:border-pink-500">
-                                    <button @click="addAdToList()" class="bg-pink-600 text-white p-2 rounded-lg"><i data-lucide="plus"></i></button>
-                                </div>
-                                <div class="space-y-2">
-                                    <template x-for="(ad, index) in activeAds" :key="index">
-                                        <div class="flex justify-between items-center bg-slate-50 p-3 rounded-lg border border-slate-100">
-                                            <span class="font-black text-[11px] uppercase text-slate-700" x-text="ad"></span>
-                                            <button @click="removeAdFromList(index)" class="p-1.5 text-red-400 hover:bg-red-50 rounded-md transition-colors"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
-                                        </div>
-                                    </template>
-                                </div>
-                            </div>
+                <div x-show="currentTab === 'config'" class="page-enter grid grid-cols-1 md:grid-cols-2 gap-10 pb-20">
+                    
+                    <div class="bg-config-plans p-10 rounded-[3rem] space-y-8 relative overflow-hidden group">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-2xl font-black italic uppercase tracking-tighter text-pink-900">Ofertas Vigentes</h3>
+                            <i data-lucide="package" class="w-10 h-10 text-pink-300 opacity-50"></i>
                         </div>
-
-                        <div class="lg:col-span-2 space-y-4">
-                            <div class="bg-white p-6 rounded-2xl border shadow-sm">
-                                <h3 class="font-black text-sm uppercase mb-4 text-slate-800 italic border-b pb-2">Registrar Gasto de Publicidad</h3>
-                                <form @submit.prevent="addExpense()" class="flex flex-wrap gap-4 items-end">
-                                    <div class="flex-1 min-w-[200px]">
-                                        <label class="text-[10px] font-black uppercase text-slate-400">Campaña</label>
-                                        <select x-model="expenseForm.adName" required class="w-full border-2 border-slate-100 rounded-lg p-2.5 font-bold outline-none">
-                                            <option value="">-- Seleccionar --</option>
-                                            <template x-for="ad in activeAds" :key="ad">
-                                                <option :value="ad" x-text="ad"></option>
-                                            </template>
-                                        </select>
+                        <div class="flex gap-4">
+                            <input type="text" x-model="formConf.planName" placeholder="Nombre Plan" class="form-input flex-1">
+                            <input type="number" x-model="formConf.planComm" placeholder="$ Comisión" class="form-input w-32">
+                            <button @click="addConfig('plans')" class="bg-pink-600 text-white w-14 h-14 rounded-2xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all shadow-lg"><i data-lucide="plus"></i></button>
+                        </div>
+                        <div class="space-y-3 max-h-60 overflow-y-auto custom-scrollbar pr-4">
+                            <template x-for="(p, i) in config.plans" :key="i">
+                                <div class="flex justify-between items-center bg-white/60 p-5 rounded-2xl border border-pink-200">
+                                    <div>
+                                        <p class="font-black text-sm uppercase text-pink-950" x-text="p.name"></p>
+                                        <p class="text-xs font-bold text-pink-600" x-text="'$' + formatCurrency(p.commission)"></p>
                                     </div>
-                                    <div class="w-32">
-                                        <label class="text-[10px] font-black uppercase text-slate-400">Inversión ($)</label>
-                                        <input type="number" step="0.01" x-model="expenseForm.amount" required class="w-full border-2 border-slate-100 rounded-lg p-2.5 font-bold outline-none">
-                                    </div>
-                                    <button type="submit" class="bg-slate-900 text-white px-6 py-2.5 rounded-lg font-black text-xs uppercase">Registrar</button>
-                                </form>
-                            </div>
-                            <div class="bg-white rounded-xl border shadow-sm overflow-hidden">
-                                <table class="w-full text-left">
-                                    <thead class="bg-slate-50 text-[10px] font-black text-slate-400 uppercase">
-                                        <tr><th class="px-6 py-4">Campaña</th><th class="px-6 py-4">Monto</th><th class="px-6 py-4">Fecha</th><th class="px-6 py-4"></th></tr>
-                                    </thead>
-                                    <tbody class="divide-y divide-slate-100">
-                                        <template x-for="(exp, index) in expenses" :key="index">
-                                            <tr class="text-sm">
-                                                <td class="px-6 py-4 font-black text-slate-700 uppercase text-[11px]" x-text="exp.adName"></td>
-                                                <td class="px-6 py-4 font-black text-red-500" x-text="'$'+exp.amount"></td>
-                                                <td class="px-6 py-4 text-slate-400 font-bold" x-text="new Date(exp.date).toLocaleDateString()"></td>
-                                                <td class="px-6 py-4 text-right"><button @click="expenses.splice(index, 1)" class="text-slate-300 hover:text-red-500"><i data-lucide="x" class="w-4 h-4"></i></button></td>
-                                            </tr>
-                                        </template>
-                                    </tbody>
-                                </table>
-                            </div>
+                                    <button @click="removeConfig('plans', i)" class="text-pink-300 hover:text-pink-600 transition-colors"><i data-lucide="trash-2" class="w-5 h-5"></i></button>
+                                </div>
+                            </template>
                         </div>
                     </div>
-                </template>
+
+                    <div class="bg-config-traffic p-10 rounded-[3rem] space-y-8 relative overflow-hidden group">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-2xl font-black italic uppercase tracking-tighter text-emerald-900">Gestión de Tráfico</h3>
+                            <i data-lucide="megaphone" class="w-10 h-10 text-emerald-300 opacity-50"></i>
+                        </div>
+                        <div class="flex gap-4">
+                            <input type="text" x-model="formConf.adName" placeholder="Nombre de Campaña/Anuncio" class="form-input flex-1">
+                            <button @click="addConfig('ads')" class="bg-emerald-600 text-white w-14 h-14 rounded-2xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all shadow-lg"><i data-lucide="plus"></i></button>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3 max-h-60 overflow-y-auto custom-scrollbar pr-4">
+                            <template x-for="(ad, i) in config.ads" :key="i">
+                                <div class="flex justify-between items-center bg-white/60 p-4 rounded-2xl border border-emerald-200">
+                                    <span class="font-black text-[11px] uppercase text-emerald-950 truncate pr-2" x-text="ad"></span>
+                                    <button @click="removeConfig('ads', i)" class="text-emerald-300 hover:text-emerald-600 transition-colors"><i data-lucide="x-circle" class="w-5 h-5"></i></button>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+
+                    <div class="bg-config-funnel p-10 rounded-[3rem] space-y-8 relative overflow-hidden group">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-2xl font-black italic uppercase tracking-tighter text-blue-900">Etapas del Funnel</h3>
+                            <i data-lucide="filter" class="w-10 h-10 text-blue-300 opacity-50"></i>
+                        </div>
+                        <div class="flex gap-4">
+                            <input type="text" x-model="formConf.stageName" placeholder="Nueva Etapa (Ej: Instalado)" class="form-input flex-1">
+                            <button @click="addConfig('funnel')" class="bg-blue-600 text-white w-14 h-14 rounded-2xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all shadow-lg"><i data-lucide="plus"></i></button>
+                        </div>
+                        <div class="space-y-3 max-h-60 overflow-y-auto custom-scrollbar pr-4">
+                            <template x-for="(st, i) in config.funnel" :key="i">
+                                <div class="flex justify-between items-center bg-white/60 p-5 rounded-2xl border border-blue-200">
+                                    <span class="font-black text-sm uppercase text-blue-950" x-text="st"></span>
+                                    <button @click="removeConfig('funnel', i)" class="text-blue-300 hover:text-blue-600 transition-colors"><i data-lucide="trash-2" class="w-5 h-5"></i></button>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+
+                    <div class="bg-config-invest p-10 rounded-[3rem] space-y-8 relative overflow-hidden group">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-2xl font-black italic uppercase tracking-tighter text-slate-900">Inversión Publicitaria</h3>
+                            <i data-lucide="dollar-sign" class="w-10 h-10 text-slate-300 opacity-50"></i>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <select x-model="formConf.invAd" class="form-input col-span-2">
+                                <option value="">Seleccionar Canal...</option>
+                                <template x-for="ad in config.ads" :key="ad">
+                                    <option :value="ad" x-text="ad"></option>
+                                </template>
+                            </select>
+                            <input type="number" x-model="formConf.invAmount" placeholder="Monto $" class="form-input">
+                            <div class="flex gap-2 col-span-2">
+                                <input type="date" x-model="formConf.invStart" class="form-input text-xs">
+                                <input type="date" x-model="formConf.invEnd" class="form-input text-xs">
+                            </div>
+                            <button @click="addConfig('invest')" class="col-span-2 bg-slate-900 text-white py-4 rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-black transition-all shadow-lg">Registrar Gasto</button>
+                        </div>
+                        <div class="space-y-3 max-h-60 overflow-y-auto custom-scrollbar pr-4 mt-6">
+                            <template x-for="(inv, i) in config.investments.slice().reverse()" :key="i">
+                                <div class="bg-white/60 p-5 rounded-2xl border border-slate-200">
+                                    <div class="flex justify-between items-start">
+                                        <div>
+                                            <p class="font-black text-[11px] uppercase text-slate-900" x-text="inv.ad"></p>
+                                            <p class="text-[9px] font-bold text-slate-400 uppercase" x-text="inv.start + ' al ' + inv.end"></p>
+                                        </div>
+                                        <div class="flex items-center gap-4">
+                                            <span class="font-black text-sm text-slate-900" x-text="'$' + formatCurrency(inv.amount)"></span>
+                                            <button @click="removeConfig('invest', config.investments.length - 1 - i)" class="text-slate-300 hover:text-red-500 transition-colors"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <div x-show="modalOpen" x-cloak class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
-                <div class="bg-white rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden max-h-[90vh] overflow-y-auto">
-                    <div class="p-6 border-b flex justify-between items-center bg-slate-50">
-                        <h3 class="text-lg font-black uppercase italic" x-text="form.id ? 'Ficha de Cliente' : 'Nuevo Lead Totalplay'"></h3>
-                        <button @click="modalOpen = false" class="text-slate-400 hover:text-red-500 transition-colors"><i data-lucide="x"></i></button>
-                    </div>
-                    <form @submit.prevent="saveLead()" class="p-6 space-y-4">
-                        <div class="grid grid-cols-2 gap-4">
-                            <div class="col-span-2 md:col-span-1">
-                                <label class="text-[10px] font-black uppercase text-slate-400">WhatsApp / Teléfono *</label>
-                                <input x-model="form.phone" required class="w-full border-2 border-pink-50 rounded-xl p-2.5 focus:border-pink-500 outline-none font-black text-pink-600">
-                            </div>
-                            <div class="col-span-2 md:col-span-1">
-                                <label class="text-[10px] font-black uppercase text-slate-400">Correo Electrónico</label>
-                                <input type="email" x-model="form.email" class="w-full border-2 border-slate-100 rounded-xl p-2.5 font-bold outline-none">
+            <div x-show="modalOpen" x-transition x-cloak class="fixed inset-0 bg-slate-900/90 backdrop-blur-xl z-[100] flex items-center justify-center p-6">
+                <div @click.away="modalOpen = false" class="bg-white rounded-[4rem] w-full max-w-5xl max-h-[90vh] overflow-hidden flex flex-col animate-up shadow-[0_0_100px_rgba(230,0,126,0.2)]">
+                    
+                    <div class="p-10 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                        <div class="flex items-center gap-6">
+                            <div class="w-16 h-16 bg-pink-600 rounded-3xl flex items-center justify-center text-white shadow-xl">
+                                <i :data-lucide="formLead.id ? 'edit-3' : 'user-plus'" class="w-8 h-8"></i>
                             </div>
                             <div>
-                                <label class="text-[10px] font-black uppercase text-slate-400">Origen *</label>
-                                <select x-model="form.source" class="w-full border-2 border-slate-100 rounded-xl p-2.5 font-bold outline-none">
+                                <h3 class="text-4xl font-black italic uppercase tracking-tighter text-slate-800" x-text="formLead.id ? 'Editar Lead' : 'Nuevo Registro'"></h3>
+                                <p class="text-[10px] font-black text-pink-500 uppercase tracking-widest mt-1">Expediente de Prospecto Melendez CRM</p>
+                            </div>
+                        </div>
+                        <button @click="modalOpen = false" class="text-slate-300 hover:text-slate-800 transition-all"><i data-lucide="x" class="w-12 h-12"></i></button>
+                    </div>
+
+                    <form @submit.prevent="saveLead()" class="p-12 overflow-y-auto custom-scrollbar">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
+                            
+                            <div class="space-y-3">
+                                <label class="text-[10px] font-black text-slate-400 uppercase ml-2 tracking-widest">WhatsApp *</label>
+                                <input type="text" x-model="formLead.phone" required placeholder="10 Dígitos" class="form-input !text-2xl font-black">
+                            </div>
+
+                            <div class="space-y-3">
+                                <label class="text-[10px] font-black text-slate-400 uppercase ml-2 tracking-widest">Nombre Completo</label>
+                                <input type="text" x-model="formLead.name" placeholder="Ej: Juan Pérez" class="form-input">
+                            </div>
+
+                            <div class="space-y-3">
+                                <label class="text-[10px] font-black text-slate-400 uppercase ml-2 tracking-widest">Correo Electrónico</label>
+                                <input type="email" x-model="formLead.email" placeholder="ejemplo@mail.com" class="form-input">
+                            </div>
+
+                            <div class="space-y-3">
+                                <label class="text-[10px] font-black text-slate-400 uppercase ml-2 tracking-widest">Vía de Contacto</label>
+                                <select x-model="formLead.sourceType" class="form-input">
                                     <option value="Facebook">Facebook</option>
                                     <option value="Instagram">Instagram</option>
-                                    <option value="WhatsApp">WhatsApp Directo</option>
+                                    <option value="WhatsApp">WhatsApp</option>
                                     <option value="Llamada">Llamada</option>
                                 </select>
                             </div>
-                            <div>
-                                <label class="text-[10px] font-black uppercase text-slate-400">Campaña de Ads *</label>
-                                <select x-model="form.adName" required class="w-full border-2 border-slate-100 rounded-xl p-2.5 font-bold outline-none">
-                                    <option value="Orgánico">Orgánico</option>
-                                    <template x-for="ad in activeAds" :key="ad">
+
+                            <div class="space-y-3">
+                                <label class="text-[10px] font-black text-slate-400 uppercase ml-2 tracking-widest">Campaña / Anuncio</label>
+                                <select x-model="formLead.adName" class="form-input">
+                                    <option value="Orgánico">Orgánico / Sin Campaña</option>
+                                    <template x-for="ad in config.ads" :key="ad">
                                         <option :value="ad" x-text="ad"></option>
                                     </template>
                                 </select>
                             </div>
-                            <div class="col-span-1"><label class="text-[10px] font-black text-slate-400 uppercase">Nombre</label><input x-model="form.name" class="w-full border border-slate-200 rounded-lg p-2 text-sm font-bold"></div>
-                            <div class="col-span-1"><label class="text-[10px] font-black text-slate-400 uppercase">Plan</label><input x-model="form.plan" class="w-full border border-slate-200 rounded-lg p-2 text-sm font-bold"></div>
-                            
-                            <div class="col-span-2">
-                                <label class="text-[10px] font-black text-slate-400 uppercase">Notas / Domicilio</label>
-                                <textarea x-model="form.notes" rows="3" class="w-full border border-slate-200 rounded-xl p-3 text-sm font-medium outline-none focus:border-pink-500 bg-slate-50/50" placeholder="Dirección exacta y comentarios..."></textarea>
-                            </div>
-                            
-                            <div class="col-span-2"><label class="text-[10px] font-black text-slate-400 uppercase">Etapa del Funnel</label>
-                                <select x-model="form.stage" class="w-full border-2 border-pink-100 rounded-xl p-3 font-black text-pink-600 bg-pink-50/30 outline-none">
-                                    <template x-for="s in stages" :key="s"><option :value="s" x-text="s"></option></template>
+
+                            <div class="space-y-3">
+                                <label class="text-[10px] font-black text-slate-400 uppercase ml-2 tracking-widest">Estatus del Funnel</label>
+                                <select x-model="formLead.stage" @change="syncPlanData()" class="form-input font-black text-indigo-600">
+                                    <template x-for="st in config.funnel" :key="st">
+                                        <option :value="st" x-text="st"></option>
+                                    </template>
                                 </select>
                             </div>
 
-                            <div class="col-span-2 p-4 bg-slate-50 border border-slate-200 rounded-xl grid grid-cols-2 gap-4">
-                                <div><label class="text-[10px] font-black text-slate-500 uppercase">Fecha Instalación</label><input type="date" x-model="form.installDate" class="w-full border rounded p-1.5 font-black text-xs"></div>
-                                <div><label class="text-[10px] font-black text-slate-500 uppercase">Comisión ($)</label><input type="number" x-model="form.commission" class="w-full border rounded p-1.5 font-black text-xs"></div>
+                            <div class="col-span-1 md:col-span-3 space-y-3">
+                                <label class="text-[10px] font-black text-slate-400 uppercase ml-2 tracking-widest">Plan Seleccionado</label>
+                                <select x-model="formLead.plan" @change="syncPlanData()" class="form-input">
+                                    <option value="">Seleccionar plan del catálogo...</option>
+                                    <template x-for="p in config.plans" :key="p.name">
+                                        <option :value="p.name" x-text="p.name + ' ($' + p.commission + ' comisión)'"></option>
+                                    </template>
+                                </select>
+                            </div>
+
+                            <template x-if="formLead.stage === 'Venta Instalada'">
+                                <div class="col-span-1 md:col-span-3 grid grid-cols-2 gap-10 p-10 bg-emerald-50 rounded-[2.5rem] border border-emerald-100 animate-up">
+                                    <div class="space-y-3">
+                                        <label class="text-[10px] font-black text-emerald-600 uppercase ml-2 tracking-widest">Fecha de Instalación</label>
+                                        <input type="date" x-model="formLead.installDate" class="form-input border-emerald-200">
+                                    </div>
+                                    <div class="space-y-3">
+                                        <label class="text-[10px] font-black text-emerald-600 uppercase ml-2 tracking-widest">Comisión Generada ($)</label>
+                                        <input type="number" x-model="formLead.commission" class="form-input border-emerald-200 text-3xl font-black text-emerald-700">
+                                    </div>
+                                </div>
+                            </template>
+
+                            <div class="col-span-1 md:col-span-3 space-y-3">
+                                <label class="text-[10px] font-black text-slate-400 uppercase ml-2 tracking-widest">Notas y Observaciones</label>
+                                <textarea x-model="formLead.notes" rows="4" class="form-input resize-none" placeholder="Dirección, referencias, folios..."></textarea>
                             </div>
                         </div>
-                        <button type="submit" class="w-full py-3 bg-pink-600 text-white rounded-xl font-black text-[10px] uppercase shadow-lg">Guardar Lead</button>
+
+                        <div class="mt-12 pt-10 border-t border-slate-100 flex gap-6">
+                            <button type="button" @click="modalOpen = false" class="flex-1 py-6 bg-slate-100 text-slate-500 rounded-3xl font-black uppercase text-xs tracking-widest hover:bg-slate-200 transition-all">Cancelar</button>
+                            <template x-if="formLead.id">
+                                <button type="button" @click="deleteLead(formLead.id)" class="py-6 px-10 bg-red-50 text-red-500 rounded-3xl hover:bg-red-500 hover:text-white transition-all"><i data-lucide="trash-2"></i></button>
+                            </template>
+                            <button type="submit" class="flex-[2] py-6 bg-slate-900 text-white rounded-3xl font-black uppercase text-xs tracking-[0.3em] shadow-xl hover:bg-pink-600 transition-all" x-text="formLead.id ? 'Guardar Cambios' : 'Confirmar Registro'"></button>
+                        </div>
                     </form>
                 </div>
             </div>
@@ -328,88 +530,277 @@
     </div>
 
     <script>
-        function crmApp() {
+        function crmEngine() {
             return {
-                sidebarOpen: true,
-                activeTab: 'dashboard',
+                currentTab: 'dashboard',
                 modalOpen: false,
-                newAdName: '',
-                activeAds: [],
-                stages: ['Nuevo', '1er Contacto', '2do Contacto', 'Calificado Internet', 'Calificado Internet+TV', 'Venta Instalada', 'Perdida'],
+                searchLead: '',
+                filterRange: 'recent',
+                customDates: { start: '', end: '' },
+
+                menu: [
+                    { id: 'dashboard', label: 'Monitor Analítico', icon: 'bar-chart-3' },
+                    { id: 'leads', label: 'Base de Leads', icon: 'database' },
+                    { id: 'kanban', label: 'Pipeline', icon: 'layout-kanban' },
+                    { id: 'config', label: 'Centro de Control', icon: 'settings-2' }
+                ],
+
+                // Configuración Dinámica
+                config: {
+                    plans: [],
+                    ads: [],
+                    funnel: [],
+                    investments: []
+                },
+
+                // Base de Datos de Leads
                 leads: [],
-                expenses: [],
-                form: {},
-                expenseForm: { adName: '', amount: 0 },
+                
+                // Formulario de Lead
+                formLead: {},
+                
+                // Formulario de Config
+                formConf: {
+                    planName: '', planComm: 0,
+                    adName: '',
+                    stageName: '',
+                    invAd: '', invAmount: 0, invStart: '', invEnd: ''
+                },
+
+                globalStats: { totalSpent: 0, grossRevenue: 0, netProfit: 0, avgCpa: 0, roi: 0 },
 
                 init() {
-                    this.leads = JSON.parse(localStorage.getItem('crm_tp_full_v4') || '[]');
-                    this.expenses = JSON.parse(localStorage.getItem('crm_tp_exp_v4') || '[]');
-                    this.activeAds = JSON.parse(localStorage.getItem('crm_tp_ads_v4') || '["Instagram Promo", "Facebook Ads"]');
+                    this.loadPersistence();
+                    this.updateStats();
                     
-                    this.$watch('leads', v => localStorage.setItem('crm_tp_full_v4', JSON.stringify(v)));
-                    this.$watch('expenses', v => localStorage.setItem('crm_tp_exp_v4', JSON.stringify(v)));
-                    this.$watch('activeAds', v => localStorage.setItem('crm_tp_ads_v4', JSON.stringify(v)));
-                    
-                    setTimeout(() => lucide.createIcons(), 150);
+                    // Sincronización Lucide
+                    setInterval(() => lucide.createIcons(), 500);
+
+                    // Watchers para persistencia
+                    this.$watch('leads', () => { this.savePersistence(); this.updateStats(); });
+                    this.$watch('config', () => { this.savePersistence(); this.updateStats(); });
+                    this.$watch('filterRange', () => this.updateStats());
+                    this.$watch('customDates', () => { if(this.filterRange === 'custom') this.updateStats(); }, { deep: true });
                 },
 
-                getWhatsAppLink(lead) {
-                    if (!lead.phone) return '#';
-                    const nombre = lead.name ? lead.name : "un gusto saludarte";
-                    const msg = `Hola ${nombre}, te saluda Juan Melendez de Totalplay. 👋 Vi tu interés en nuestros planes. ¿En qué puedo apoyarte?`;
-                    const cleanPhone = lead.phone.replace(/\D/g, ''); 
-                    return `https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg)}`;
+                savePersistence() {
+                    localStorage.setItem('melendez_crm_leads', JSON.stringify(this.leads));
+                    localStorage.setItem('melendez_crm_config', JSON.stringify(this.config));
                 },
 
-                addAdToList() {
-                    if (this.newAdName.trim() && !this.activeAds.includes(this.newAdName)) {
-                        this.activeAds.push(this.newAdName.trim());
-                        this.newAdName = '';
+                loadPersistence() {
+                    this.leads = JSON.parse(localStorage.getItem('melendez_crm_leads')) || [];
+                    this.config = JSON.parse(localStorage.getItem('melendez_crm_config')) || {
+                        plans: [{name: 'Tripleplay 100MB', commission: 500}],
+                        ads: ['Facebook Ads', 'Instagram Ads'],
+                        funnel: ['Lead', 'Cita', 'Venta Instalada', 'Cancelada'],
+                        investments: []
+                    };
+                },
+
+                // GESTIÓN DE CONFIGURACIÓN
+                addConfig(type) {
+                    if (type === 'plans' && this.formConf.planName) {
+                        this.config.plans.push({ name: this.formConf.planName, commission: Number(this.formConf.planComm) });
+                        this.formConf.planName = ''; this.formConf.planComm = 0;
+                    } else if (type === 'ads' && this.formConf.adName) {
+                        this.config.ads.push(this.formConf.adName);
+                        this.formConf.adName = '';
+                    } else if (type === 'funnel' && this.formConf.stageName) {
+                        this.config.funnel.push(this.formConf.stageName);
+                        this.formConf.stageName = '';
+                    } else if (type === 'invest' && this.formConf.invAd && this.formConf.invAmount) {
+                        this.config.investments.push({
+                            ad: this.formConf.invAd,
+                            amount: Number(this.formConf.invAmount),
+                            start: this.formConf.invStart,
+                            end: this.formConf.invEnd
+                        });
+                        this.formConf.invAmount = 0;
                     }
                 },
-                removeAdFromList(index) { if (confirm('¿Eliminar campaña?')) this.activeAds.splice(index, 1); },
-                
-                getAdLeadCount(ad) { return this.leads.filter(l => l.adName === ad).length; },
-                getAdStageCount(ad, stage) { return this.leads.filter(l => l.adName === ad && l.stage === stage).length; },
-                getAdSalesCount(ad) { return this.leads.filter(l => l.adName === ad && l.stage === 'Venta Instalada').length; },
-                getAdTotalExpense(ad) { return this.expenses.filter(e => e.adName === ad).reduce((a, b) => a + Number(b.amount), 0); },
-                getAdCPA(ad) {
-                    const sales = this.getAdSalesCount(ad);
-                    const cost = this.getAdTotalExpense(ad);
-                    return sales > 0 ? (cost / sales).toFixed(1) : cost;
-                },
-                totalExpenses() { return this.expenses.reduce((acc, curr) => acc + Number(curr.amount), 0); },
-                totalCommission() { return this.leads.reduce((acc, curr) => acc + Number(curr.commission || 0), 0); },
-                calculateCPA() {
-                    const sales = this.leads.filter(l => l.stage === 'Venta Instalada').length;
-                    return sales > 0 ? (this.totalExpenses() / sales).toFixed(1) : this.totalExpenses();
-                },
-                calculateROI() {
-                    const cost = this.totalExpenses();
-                    const rev = this.totalCommission();
-                    return cost > 0 ? (((rev - cost) / cost) * 100).toFixed(1) : 0;
+
+                removeConfig(type, index) {
+                    if (confirm('¿Eliminar este elemento de la configuración?')) {
+                        this.config[type].splice(index, 1);
+                    }
                 },
 
-                addExpense() {
-                    this.expenses.push({ ...this.expenseForm, date: new Date().toISOString() });
-                    this.expenseForm.amount = 0;
-                },
-                openModal(lead = null) {
-                    if (lead) { this.form = JSON.parse(JSON.stringify(lead)); } 
-                    else { this.form = { source: 'Facebook', stage: 'Nuevo', adName: 'Orgánico', commission: 0, phone: '', email: '', notes: '', name: '', installDate: '' }; }
+                // GESTIÓN DE LEADS
+                openLeadModal() {
+                    this.formLead = {
+                        id: null, phone: '', name: '', email: '', 
+                        sourceType: 'Facebook', adName: 'Orgánico',
+                        stage: this.config.funnel[0] || 'Lead',
+                        plan: '', commission: 0, installDate: '', notes: '',
+                        createdAt: new Date().toISOString()
+                    };
                     this.modalOpen = true;
-                    setTimeout(() => lucide.createIcons(), 100);
                 },
+
+                editLead(lead) {
+                    this.formLead = JSON.parse(JSON.stringify(lead));
+                    this.modalOpen = true;
+                },
+
                 saveLead() {
-                    if (this.form.id) { this.leads = this.leads.map(l => l.id === this.form.id ? this.form : l); } 
-                    else { this.form.id = Date.now(); this.leads.push(this.form); }
+                    if (this.formLead.id) {
+                        const idx = this.leads.findIndex(l => l.id === this.formLead.id);
+                        this.leads[idx] = this.formLead;
+                    } else {
+                        this.formLead.id = Date.now();
+                        this.leads.push(this.formLead);
+                    }
                     this.modalOpen = false;
                 },
+
+                deleteLead(id) {
+                    if(confirm('¿Borrar definitivamente?')) {
+                        this.leads = this.leads.filter(l => l.id !== id);
+                        this.modalOpen = false;
+                    }
+                },
+
+                syncPlanData() {
+                    if (this.formLead.stage === 'Venta Instalada') {
+                        const plan = this.config.plans.find(p => p.name === this.formLead.plan);
+                        if (plan) this.formLead.commission = plan.commission;
+                        if (!this.formLead.installDate) this.formLead.installDate = new Date().toISOString().split('T')[0];
+                    }
+                },
+
+                // FILTROS Y ESTADÍSTICAS
+                setRange(mode) { this.filterRange = mode; },
+
+                isDateInRange(dateStr) {
+                    const date = new Date(dateStr);
+                    date.setHours(0,0,0,0);
+                    const now = new Date();
+                    now.setHours(0,0,0,0);
+
+                    if (this.filterRange === 'recent') {
+                        const yesterday = new Date(now);
+                        yesterday.setDate(yesterday.getDate() - 1);
+                        return date >= yesterday;
+                    }
+                    if (this.filterRange === 'this_week') {
+                        const start = new Date(now);
+                        start.setDate(now.getDate() - now.getDay());
+                        return date >= start;
+                    }
+                    if (this.filterRange === 'last_week') {
+                        const start = new Date(now);
+                        start.setDate(now.getDate() - now.getDay() - 7);
+                        const end = new Date(start);
+                        end.setDate(start.getDate() + 6);
+                        return date >= start && date <= end;
+                    }
+                    if (this.filterRange === 'this_month') {
+                        return date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear();
+                    }
+                    if (this.filterRange === 'custom') {
+                        if (!this.customDates.start || !this.customDates.end) return true;
+                        return date >= new Date(this.customDates.start) && date <= new Date(this.customDates.end);
+                    }
+                    return true;
+                },
+
+                updateStats() {
+                    const filteredLeads = this.leads.filter(l => this.isDateInRange(l.createdAt));
+                    const filteredInvest = this.config.investments.filter(i => this.isDateInRange(i.start));
+
+                    this.globalStats.totalSpent = filteredInvest.reduce((s, i) => s + i.amount, 0);
+                    this.globalStats.grossRevenue = filteredLeads
+                        .filter(l => l.stage === 'Venta Instalada')
+                        .reduce((s, l) => s + (Number(l.commission) || 0), 0);
+                    
+                    this.globalStats.netProfit = this.globalStats.grossRevenue - this.globalStats.totalSpent;
+                    
+                    const sales = filteredLeads.filter(l => l.stage === 'Venta Instalada').length;
+                    this.globalStats.avgCpa = sales > 0 ? (this.globalStats.totalSpent / sales) : 0;
+                    this.globalStats.roi = this.globalStats.totalSpent > 0 
+                        ? ((this.globalStats.netProfit / this.globalStats.totalSpent) * 100).toFixed(1) 
+                        : 0;
+                },
+
+                getAdMetrics(adName) {
+                    const leads = this.leads.filter(l => l.adName === adName && this.isDateInRange(l.createdAt));
+                    const spent = this.config.investments
+                        .filter(i => i.ad === adName && this.isDateInRange(i.start))
+                        .reduce((s, i) => s + i.amount, 0);
+                    
+                    const sales = leads.filter(l => l.stage === 'Venta Instalada').length;
+                    return {
+                        spent,
+                        sales,
+                        cpa: sales > 0 ? spent / sales : 0,
+                        conv: leads.length > 0 ? ((sales / leads.length) * 100).toFixed(1) : 0
+                    };
+                },
+
+                getActiveAdsForFilter() {
+                    return this.config.ads.filter(ad => 
+                        this.leads.some(l => l.adName === ad && this.isDateInRange(l.createdAt))
+                    );
+                },
+
+                getAdCountByStage(ad, st) {
+                    return this.leads.filter(l => l.adName === ad && l.stage === st && this.isDateInRange(l.createdAt)).length;
+                },
+
+                getAdStagePercent(ad, st) {
+                    const total = this.leads.filter(l => l.adName === ad && this.isDateInRange(l.createdAt)).length;
+                    if (total === 0) return 0;
+                    return (this.getAdCountByStage(ad, st) / total) * 100;
+                },
+
+                // UTILS
+                get filteredLeads() {
+                    return this.leads.filter(l => 
+                        l.phone.includes(this.searchLead) || 
+                        (l.name && l.name.toLowerCase().includes(this.searchLead.toLowerCase()))
+                    ).reverse();
+                },
+
+                getLeadsByStage(st) {
+                    return this.leads.filter(l => l.stage === st).reverse();
+                },
+
+                getActiveTitle() {
+                    return this.menu.find(m => m.id === this.currentTab).label;
+                },
+
+                formatCurrency(n) {
+                    return new Intl.NumberFormat('es-MX').format(n);
+                },
+
+                formatDate(d) { return new Date(d).toLocaleDateString(); },
+                formatDateShort(d) { return new Date(d).toLocaleDateString('es-ES', {day:'2-digit', month:'2-digit'}); },
+                formatTime(d) { return new Date(d).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}); },
+                
+                getWSLink(l) { return `https://wa.me/52${l.phone.replace(/\D/g,'')}`; },
+
+                getStatusBadgeClass(st) {
+                    if (st === 'Venta Instalada') return 'bg-emerald-50 text-emerald-700 border-emerald-100';
+                    if (st === 'Cancelada') return 'bg-red-50 text-red-700 border-red-100';
+                    return 'bg-indigo-50 text-indigo-700 border-indigo-100';
+                },
+
                 exportToExcel() {
-                    const ws = XLSX.utils.json_to_sheet(this.leads);
+                    const data = this.leads
+                        .filter(l => l.stage === 'Venta Instalada')
+                        .map(l => ({
+                            'Fecha Registro': this.formatDate(l.createdAt),
+                            'Nombre': l.name,
+                            'Teléfono': l.phone,
+                            'Correo': l.email,
+                            'Fecha Instalación': l.installDate,
+                            'Comisión': l.commission
+                        }));
+                    const ws = XLSX.utils.json_to_sheet(data);
                     const wb = XLSX.utils.book_new();
-                    XLSX.utils.book_append_sheet(wb, ws, "Leads");
-                    XLSX.writeFile(wb, "CRM_Totalplay_JuanMelendez.xlsx");
+                    XLSX.utils.book_append_sheet(wb, ws, "Ventas_Instaladas");
+                    XLSX.writeFile(wb, `Reporte_Instalaciones_${new Date().toISOString().split('T')[0]}.xlsx`);
                 }
             }
         }
